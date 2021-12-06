@@ -75,6 +75,7 @@ class ShortRows:
         assert self.height is not None
         assert self.width is not None
         assert height >= 0
+        self.draw()
 
     def __str__(self):
         return f"bend ({self.x}, {self.y}) {self.height} + {self.width}"
@@ -202,7 +203,6 @@ def place_bend(e):
             print("edit")
             short_rows = ShortRows(x, y, 10 * w.get() // 4, 10 * w.get() // 2)
             print(short_rows)
-            short_rows.draw()
             ring = C.create_oval(x - r, y - r, x + r, y + r, outline="pink", width="3")
             open_menu(col, row, x, y, False, ring)
         """
