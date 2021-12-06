@@ -83,11 +83,14 @@ class ShortRows:
         return str(self)
 
     def draw(self):
+        col = self.x//10-1
+        row = int(self.y + self.height/2)//10-1
         # draw two pairs of arcs
         shrinks = self.x, self.y, self.x+self.width, self.height+self.y
         grows = self.x, self.height+self.y, self.x+self.width, self.height*2+self.y
-        C.create_arc(shrinks, start=180, extent=180, outline="orange", width=2)
-        C.create_arc(grows, start=0, extent=180, outline="orange", width=2)
+        C.create_arc(shrinks, start=180, extent=180, outline="orange", width=2, tags=(str(col)+","+str(row)))
+        C.create_arc(grows, start=0, extent=180, outline="orange", width=2, tags=(str(col)+","+str(row)))
+        print(row, col)
         # todo draw 2nd pair
 
 
@@ -103,7 +106,7 @@ class ShortRows:
 # todo: create actual gap in fabric
 
 
-def open_menu(col: int, row: int, x: int, y: int, is_new: bool, circ, ring, short_rows):
+def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
     menu = Toplevel(window)
     menu.grab_set()  # stop any interaction until the menu box is closed
     menu.title("Edit bend")
@@ -144,8 +147,7 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, circ, ring, shor
 
     def cancel():
         if is_new is True:
-            C.delete(circ)
-            C.delete(short_rows)
+            C.delete(str(col)+","+str(row))
         close()
 
     cancel_button = Button(menu, text="Cancel", command=cancel)
@@ -154,8 +156,7 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, circ, ring, shor
     def remove():
         if is_new is False:
             # print("erase circle")
-            C.delete(circ)
-            C.delete(short_rows)
+            C.delete(str(col)+","+str(row))
             del bends[(col, row)]  # remove bend from array
             close()
 
@@ -203,7 +204,7 @@ def place_bend(e):
             print(short_rows)
             short_rows.draw()
             ring = C.create_oval(x - r, y - r, x + r, y + r, outline="pink", width="3")
-            open_menu(col, row, x, y, False, C.find_closest(x, y), ring, short_rows)
+            open_menu(col, row, x, y, False, ring)
         """
         else:
             # just move the circle 
@@ -211,16 +212,14 @@ def place_bend(e):
         """
 
     elif (h.get()*10+10) >= y >= 10 and (w.get()*10+10) >= x >= 10:
-        circ = C.create_oval(x - r, y - r, x + r, y + r, fill="green")
+        circ = C.create_oval(x - r, y - r, x + r, y + r, fill="green", tags=(str(col)+","+str(row)))
         ring = C.create_oval(x - r, y - r, x + r, y + r, outline="pink", width="3")
-        short_rows = ShortRows(x, y, 10*w.get()//4, 10*w.get()//2)
-        print(short_rows)
-        short_rows.draw()
-        # diamond = C.create_polygon(, fill="gray")
+        short_rows = ShortRows(x, y, 10 * w.get() // 4, 10 * w.get() // 2)
+        # diamond = C.create_polygon(, fill="gray") todo
         # print(x//10-1)
         # print(y//10-1)
         # bends.append(Draft_Bend(y//10-1, 1, x//10-1))
-        open_menu(col, row, x, y, True, circ, ring, short_rows)
+        open_menu(col, row, x, y, True, ring)
 
 
 def set_width(e):
