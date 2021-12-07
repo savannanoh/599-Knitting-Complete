@@ -99,7 +99,6 @@ class ShortRows:
         print(row, col)
         # todo draw 2nd pair
 
-
 # todo
 """
      def adjust_bend(self):
@@ -117,18 +116,18 @@ class ShortRows:
         x0, y0, x1, y1 = C.coords(rect)
     x1 = 10 + 10 * float(e)
     C.coords(rect, x0, y0, x1, y1)
-    
-    def split(y):
-    x0, y0, x1, y1 = C.coords(rect)
-    C.coords(rect, x0, y0, x1, y1)
 """
 # todo: create actual gap in fabric
 
 
-
-
-
-
+def shift_down(y, shift):
+    y-=1
+    print("y")
+    print(y)
+    to_shift = C.find_enclosed(0, y, C_WIDTH, y + C_HEIGHT)
+    for shape in to_shift:
+        x0, y0, x1, y1 = C.coords(shape)
+        C.coords(shape, x0, y0 + shift, x1, y1 + shift)
 
 
 
@@ -160,8 +159,10 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
 
     def place():
         if is_new is True:
+            shift_down(y, 10 * w.get() // 2 // 2)
             bends[(col, row)] = Draft_Bend(y//10-1, bendiness.get(), x//10-1)
             print(bends)
+
         else:
             bends[(col, row)] = Draft_Bend(y//10-1, bendiness.get(), x//10-1)
             print(bends)
