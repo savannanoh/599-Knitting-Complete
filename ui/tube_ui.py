@@ -108,13 +108,26 @@ class ShortRows:
     def adjust_width(self):
         # shrink the arcs
         # shift the arcs
-        
-    def shift_down(y):
-        C.find_enclosed(0, y, )
 
     def shift_up():
+    
+    def shift_down(y):
+    to_shift = C.find_enclosed(0, y, C_WIDTH, y+C_HEIGHT)
+    for shape in to_shift:
+        x0, y0, x1, y1 = C.coords(rect)
+    x1 = 10 + 10 * float(e)
+    C.coords(rect, x0, y0, x1, y1)
+    
+    def split(y):
+    x0, y0, x1, y1 = C.coords(rect)
+    C.coords(rect, x0, y0, x1, y1)
 """
 # todo: create actual gap in fabric
+
+
+
+
+
 
 
 
@@ -239,9 +252,10 @@ def place_bend(e):
 def set_width(e):
     width = w.get()
     # print(width)
-    x0, y0, x1, y1 = C.coords(rect)
-    x1 = 10 + 10 * float(e)
-    C.coords(rect, x0, y0, x1, y1)
+
+    #x0, y0, x1, y1 = C.coords(rect)
+    #x1 = 10 + 10 * float(e)
+    #C.coords(rect, x0, y0, x1, y1)
     """
         for n in range(0, int(e)):
         C.create_line(10+n*10, 10, 10+n*10, 30)
@@ -250,13 +264,61 @@ def set_width(e):
     """
     # todo adjust arcs
 
+    for rect in rects.values():
+        x0, y0, x1, y1 = C.coords(rect)
+        x1 = 10 + 10 * float(e)
+        C.coords(rect, x0, y0, x1, y1)
+
+
 
 def set_height(e):
     height = h.get()
     # print(height)
-    x0, y0, x1, y1 = C.coords(rect)
-    y1 = 10 + 10 * float(e)
-    C.coords(rect, x0, y0, x1, y1)
+    #x0, y0, x1, y1 = C.coords(rect)
+    #y1 = 10 + 10 * float(e)
+    #C.coords(rect, x0, y0, x1, y1)
+    print(str(e))
+    highest = rects[max(rects)]
+    x0, y0, x1, y1 = C.coords(highest)
+    yval = int(y1//10-1)
+    print("yval: "+ str(yval))
+    max_height = int(e)
+    if float(e) > yval:
+        #for i in range(yval, max_height):
+        for i in range(0, max_height-yval):
+            row = yval+i
+            tag = "r"+str(row)
+            print(tag)
+            new_rect = C.create_rectangle(x0, y1+10*i, x1, y1+10+10*i, fill="yellow", tag=tag)
+            rects[row] = new_rect
+    elif float(e) < yval:
+        print("deleting")
+        for i in range(max_height, yval):
+            print("i: "+str(i))
+            C.delete(rects[i])
+            del(rects[i])
+
+
+        """
+                to_del = C.find_enclosed(0, float(e), C_WIDTH, y1)
+        print(to_del)
+        for shape in to_del:
+            tags = C.gettags(shape)
+            print(tags)
+            is_row = False
+            row = 0
+            for tag in tags:
+                if tag.startswith("r"):
+                    is_row = True
+                    row = tag[1:]
+            if is_row is True:
+                C.delete(shape)
+                del(rects[row])
+        """
+
+
+
+
     """
         for n in range(0, 8):
         C.create_line(10+n*10, 10, 10+n*10, 30)
@@ -348,8 +410,12 @@ if __name__ == "__main__":
     scale.pack(side=LEFT)
 
     C = tk.Canvas(tube, bg="blue", height=C_HEIGHT, width=C_WIDTH)
+    rects = {}
     coord = 10, 50, 240, 210
-    rect = C.create_rectangle(10, 10, 90, 30, fill="yellow")
+    rect0 = C.create_rectangle(10, 10, 90, 20, fill="yellow", tag="r0")
+    rect1 = C.create_rectangle(10, 20, 90, 30, fill="yellow", tag="r1")
+    rects[0] = rect0
+    rects[1] = rect1
     for n in range(0, C_COLS+1):
         C.create_line(10+n*10, 10, 10+n*10, 10*(C_COLS+1), fill="gray")
     for m in range(0, C_ROWS+1):
