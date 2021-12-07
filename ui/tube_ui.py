@@ -6,6 +6,11 @@ from tkinter import *
 from typing import Optional, List, Tuple, Dict, Union, Set
 
 
+C_ROWS = 40
+C_COLS = 40
+C_WIDTH = 10*(C_ROWS+2)
+C_HEIGHT = 10*(C_COLS+2)
+
 # https://realpython.com/python-gui-tkinter/
 # https://www.tutorialspoint.com/python/python_gui_programming.htm
 # need to keep map of coordinates to canvas objects so they can be deleted after--nvm, just use find_closest
@@ -103,8 +108,17 @@ class ShortRows:
     def adjust_width(self):
         # shrink the arcs
         # shift the arcs
+        
+    def shift_down(y):
+        C.find_enclosed(0, y, )
+
+    def shift_up():
 """
 # todo: create actual gap in fabric
+
+
+
+
 
 
 def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
@@ -326,20 +340,20 @@ if __name__ == "__main__":
     tube.pack()
 
     w = IntVar()
-    scale = Scale(tube, variable=w, from_=8, to=40, length=400, resolution=2, orient=HORIZONTAL, label="circumference", command=set_width)
+    scale = Scale(tube, variable=w, from_=8, to=C_COLS, length=C_COLS*10, resolution=2, orient=HORIZONTAL, label="circumference", command=set_width)
     scale.pack(side=TOP)
 
     h = IntVar()
-    scale = Scale(tube, variable=h, from_=2, to=40, length=400, resolution=1, orient=VERTICAL, label="num of rows", command=set_height)
+    scale = Scale(tube, variable=h, from_=2, to=C_ROWS, length=C_ROWS*10, resolution=1, orient=VERTICAL, label="num of rows", command=set_height)
     scale.pack(side=LEFT)
 
-    C = tk.Canvas(tube, bg="blue", height=420, width=420)
+    C = tk.Canvas(tube, bg="blue", height=C_HEIGHT, width=C_WIDTH)
     coord = 10, 50, 240, 210
     rect = C.create_rectangle(10, 10, 90, 30, fill="yellow")
-    for n in range(0, 41):
-        C.create_line(10+n*10, 10, 10+n*10, 410, fill="gray")
-    for m in range(0, 41):
-        C.create_line(10, 10+m*10, 410, 10+m*10, fill="gray")
+    for n in range(0, C_COLS+1):
+        C.create_line(10+n*10, 10, 10+n*10, 10*(C_COLS+1), fill="gray")
+    for m in range(0, C_ROWS+1):
+        C.create_line(10, 10+m*10, 10*(C_ROWS+1), 10+m*10, fill="gray")
 
     C.pack()
 
