@@ -187,6 +187,10 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
     menu.title("Edit bend")
     menu.geometry("200x200")
     Label(menu, text="Edit bend at column "+str(col)+" and row "+str(row)).pack()
+    if is_new is True:
+        default = 1.0
+    else:
+        default = bends[(col, row)].bendiness
 
     def close():
         C.delete(ring)
@@ -231,6 +235,8 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
             shift_down(y, -round(srs[row].height))
             C.delete(str(col)+","+str(row))
             del(srs[row])
+        else:
+            srs[row].on_adjust_bend(default)
         close()
 
     cancel_button = Button(menu, text="Cancel", command=cancel)
