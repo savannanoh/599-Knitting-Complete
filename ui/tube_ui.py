@@ -71,6 +71,8 @@ class ShortRows:
         :param height: height of HALF of the pair
         :param width: width of base of shape
         """
+        height = (height//10)*10
+        print("height", str(height))
         self.x: int = x
         self.y: int = y-height/2
         self.height: float = height
@@ -80,6 +82,8 @@ class ShortRows:
         assert self.height is not None
         assert self.width is not None
         assert height >= 0
+        #shift_down(y, 10 * w.get() // 2 // 2)
+        shift_down(y, self.height)
         self.draw()
 
     def __str__(self):
@@ -121,10 +125,12 @@ class ShortRows:
 
 
 def shift_down(y, shift):
-    y-=1
+    print("shift")
+    print(shift)
+    #y-=1
     print("y")
     print(y)
-    to_shift = C.find_enclosed(0, y, C_WIDTH, y + C_HEIGHT)
+    to_shift = C.find_enclosed(0, y-1, C_WIDTH, y + C_HEIGHT)
     for shape in to_shift:
         x0, y0, x1, y1 = C.coords(shape)
         C.coords(shape, x0, y0 + shift, x1, y1 + shift)
@@ -159,7 +165,7 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
 
     def place():
         if is_new is True:
-            shift_down(y, 10 * w.get() // 2 // 2)
+            #shift_down(y, 10 * w.get() // 2 // 2)
             bends[(col, row)] = Draft_Bend(y//10-1, bendiness.get(), x//10-1)
             print(bends)
 
@@ -218,36 +224,52 @@ def place_bend(e):
         y = (e.y//10)*10
     else:
         y = (e.y//10+1)*10
+    if y <= 10+5:
+        return
     # print(rect.coords)
     # if 410 >= y >= 10 and 410 >= x >= 10:
-    row = y//10-1
-    existing = clicked_on_existing(row)
-    # print(existing)
-    col = x // 10 - 1
-    if existing is not None:
-        # print(str(existing.bend_dir)+"?"+str(col))
-        if existing.bend_dir == col:
-            # bring up height and delete menu
-            print("edit")
-            short_rows = ShortRows(x, y, 10 * w.get() // 4, 10 * w.get() // 2)
-            print(short_rows)
-            ring = C.create_oval(x - r, y - r, x + r, y + r, outline="pink", width="3")
-            open_menu(col, row, x, y, False, ring)
-        """
-        else:
-            # just move the circle 
-            print("move")
-        """
+    # figure out which row we should add a bend to based on closest rectangle. If none, do nothing.
+    # row = y//10-1
+    row = None
+    for i in rects:
+        rect = rects[i]
+        x0, y0, x1, y1 = C.coords(rect)
+        print(i, y0, y1)
+        if y == y1:
+            row = i+1
+    print("y", str(y))
+    print("row", str(row))
+    if row is not None:
+        existing = clicked_on_existing(row)
+        # print(existing)
+        col = x // 10 - 1
+        x0, y0, x1, y1 = C.coords(rects[h.get()-1])
+        print(x0, y0, x1, y1)
+        if existing is not None:
+            # print(str(existing.bend_dir)+"?"+str(col))
+            if existing.bend_dir == col:
+                # bring up height and delete menu
+                print("edit")
+                short_rows = ShortRows(x, y, 10 * w.get() // 4, 10 * w.get() // 2)
+                print(short_rows)
+                ring = C.create_oval(x - r, y - r, x + r, y + r, outline="pink", width="3")
+                open_menu(col, row, x, y, False, ring)
+            """
+            else:
+                # just move the circle 
+                print("move")
+            """
 
-    elif (h.get()*10+10) >= y >= 10 and (w.get()*10+10) >= x >= 10:
-        circ = C.create_oval(x - r, y - r, x + r, y + r, fill="green", tags=(str(col)+","+str(row)))
-        ring = C.create_oval(x - r, y - r, x + r, y + r, outline="pink", width="3")
-        short_rows = ShortRows(x, y, 10 * w.get() // 4, 10 * w.get() // 2)
-        # diamond = C.create_polygon(, fill="gray") todo
-        # print(x//10-1)
-        # print(y//10-1)
-        # bends.append(Draft_Bend(y//10-1, 1, x//10-1))
-        open_menu(col, row, x, y, True, ring)
+        #elif (h.get()*10+10) >= y >= 10 and (w.get()*10+10) >= x >= 10:
+        elif y1 >= y >= 10 and (w.get() * 10 + 10) >= x >= 10:
+            circ = C.create_oval(x - r, y - r, x + r, y + r, fill="green", tags=(str(col)+","+str(row)))
+            ring = C.create_oval(x - r, y - r, x + r, y + r, outline="pink", width="3")
+            short_rows = ShortRows(x, y, 10 * w.get() // 4, 10 * w.get() // 2)
+            # diamond = C.create_polygon(, fill="gray") todo
+            # print(x//10-1)
+            # print(y//10-1)
+            # bends.append(Draft_Bend(y//10-1, 1, x//10-1))
+            open_menu(col, row, x, y, True, ring)
 
 
 def set_width(e):
@@ -279,18 +301,18 @@ def set_height(e):
     #x0, y0, x1, y1 = C.coords(rect)
     #y1 = 10 + 10 * float(e)
     #C.coords(rect, x0, y0, x1, y1)
-    print(str(e))
+    #print(str(e))
     highest = rects[max(rects)]
     x0, y0, x1, y1 = C.coords(highest)
     yval = int(y1//10-1)
-    print("yval: "+ str(yval))
+    #print("yval: "+ str(yval))
     max_height = int(e)
     if float(e) > yval:
         #for i in range(yval, max_height):
         for i in range(0, max_height-yval):
             row = yval+i
             tag = "r"+str(row)
-            print(tag)
+            #print(tag)
             new_rect = C.create_rectangle(x0, y1+10*i, x1, y1+10+10*i, fill="yellow", tag=tag)
             rects[row] = new_rect
     elif float(e) < yval:
