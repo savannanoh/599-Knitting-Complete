@@ -269,6 +269,7 @@ def set_width(e):
         x0, y0, x1, y1 = C.coords(rect)
         x1 = 10 + 10 * float(e)
         C.coords(rect, x0, y0, x1, y1)
+    C.tag_raise("gridline")
 
 
 
@@ -298,24 +299,24 @@ def set_height(e):
             print("i: "+str(i))
             C.delete(rects[i])
             del(rects[i])
+    C.tag_raise("gridline")
 
-
-        """
-                to_del = C.find_enclosed(0, float(e), C_WIDTH, y1)
-        print(to_del)
-        for shape in to_del:
-            tags = C.gettags(shape)
-            print(tags)
-            is_row = False
-            row = 0
-            for tag in tags:
-                if tag.startswith("r"):
-                    is_row = True
-                    row = tag[1:]
-            if is_row is True:
-                C.delete(shape)
-                del(rects[row])
-        """
+    """
+            to_del = C.find_enclosed(0, float(e), C_WIDTH, y1)
+    print(to_del)
+    for shape in to_del:
+        tags = C.gettags(shape)
+        print(tags)
+        is_row = False
+        row = 0
+        for tag in tags:
+            if tag.startswith("r"):
+                is_row = True
+                row = tag[1:]
+        if is_row is True:
+            C.delete(shape)
+            del(rects[row])
+    """
 
 
 
@@ -418,9 +419,9 @@ if __name__ == "__main__":
     rects[0] = rect0
     rects[1] = rect1
     for n in range(0, C_COLS+1):
-        C.create_line(10+n*10, 10, 10+n*10, 10*(C_COLS+1), fill="gray")
+        C.create_line(10+n*10, 10, 10+n*10, 10*(C_COLS+1), fill="gray", tag="gridline")
     for m in range(0, C_ROWS+1):
-        C.create_line(10, 10+m*10, 10*(C_ROWS+1), 10+m*10, fill="gray")
+        C.create_line(10, 10+m*10, 10*(C_ROWS+1), 10+m*10, fill="gray", tag="gridline")
 
     C.pack()
 
