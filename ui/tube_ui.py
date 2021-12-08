@@ -68,11 +68,12 @@ class ShortRows:
         """
         :param x: upper left point of short rows
         :param y: upper left point of short rows
-        :param height: height of HALF of the pair
+        :param height: height of the PAIR
         :param width: width of base of shape
         """
-        height = (height//10)*10
-        print("height", str(height))
+        height = round(height)
+        assert height % 10 == 0
+        #print("height", str(height))
         self.x: int = x
         self.y: int = y-height/2
         self.col = col
@@ -105,21 +106,26 @@ class ShortRows:
         grows = self.x, self.height+self.y, self.x+self.width, self.height*2+self.y
         self.top = C.create_arc(shrinks, start=180, extent=180, outline="orange", width=2, tags=tag)
         self.bot = C.create_arc(grows, start=0, extent=180, outline="orange", width=2, tags=tag)
-        print(self.col, self.row)
+        #print(self.col, self.row)
         # todo draw 2nd pair
 
     def on_adjust_width(self):
         # adjust size of arcs
         old_w = self.width
-        new_w = w.get()*10
+        new_w = w.get()//2*10
         multiplier = new_w/old_w
         old_h = self.height
         new_h = (old_h * multiplier)
         self.width = new_w
-        self.height = new_h//10*10
+        #self.height = new_h//10*10
+        self.height = round(new_h)
+        assert self.height % 10 == 0
+        dot_y = self.y + old_h//2
+        self.y = dot_y - self.height//2
         # shift
-        shift_down(self.y, self.height-old_h)
+        shift_down(dot_y, self.height-old_h)
 
+        # why is self.y changing???
         C.coords(self.top, self.x, self.y, self.x+self.width, self.height+self.y)
         C.coords(self.bot, self.x, self.height+self.y, self.x+self.width, self.height*2+self.y)
         #print(C.coords(self.top))
@@ -138,12 +144,10 @@ class ShortRows:
 """
 
 def shift_down(y, shift):
+    assert shift % 10 == 0
+    assert y % 10 == 0
     if shift == 0:
         return
-    print("shift")
-    print(shift)
-    print("y")
-    print(y)
     if shift > 0:
         to_shift = C.find_enclosed(0, y-1, C_WIDTH, y + C_HEIGHT)
     elif shift < 0:
@@ -197,7 +201,8 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
     def cancel():
         if is_new is True:
             #shift_down(y, -(10 * w.get() // 2)//10*10)
-            shift_down(y, -srs[row].height//10*10)
+            assert round(srs[row].height) % 10 == 0
+            shift_down(y, -round(srs[row].height))
             C.delete(str(col)+","+str(row))
             del(srs[row])
         close()
@@ -209,7 +214,8 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
         if is_new is False:
             # print("erase circle")
             #shift_down(y, -(10 * w.get() // 2)//10*10)
-            shift_down(y, -srs[row].height//10*10)
+            assert round(srs[row].height) % 10 == 0
+            shift_down(y, -round(srs[row].height))
             C.delete(str(col)+","+str(row))
             del(srs[row])
             del bends[(col, row)]  # remove bend from array
@@ -236,14 +242,18 @@ def clicked_on_existing(row: int):
 def place_bend(e):
     r = 5
     # x, y = e.x, e.y
-    if e.x % 10 < 5:
-        x = (e.x//10)*10
+    """
+        if e.x % 10 < 5:
+        x = round(e.x/10)*10
     else:
-        x = (e.x//10+1)*10
+        x = round(e.x/10+1)*10
     if e.y % 10 < 5:
-        y = (e.y//10)*10
+        y = round(e.y/10)*10
     else:
-        y = (e.y//10+1)*10
+        y = round(e.y/10+1)*10
+    """
+    x = round(e.x / 10) * 10
+    y = round(e.y / 10) * 10
     if y <= 10+5:
         return
     # print(rect.coords)
@@ -254,22 +264,20 @@ def place_bend(e):
     for i in rects:
         rect = rects[i]
         x0, y0, x1, y1 = C.coords(rect)
-        print(i, y0, y1)
+        #print(i, y0, y1)
         if y == y1 and i < len(rects)-1:
             row = i+1
-    print("y", str(y))
-    print("row", str(row))
     if row is not None:
         existing = clicked_on_existing(row)
         # print(existing)
-        col = x // 10 - 1
+        col = round(x / 10) - 1
         x0, y0, x1, y1 = C.coords(rects[h.get()-1])
-        print(x0, y0, x1, y1)
+        #print(x0, y0, x1, y1)
         if existing is not None:
             # print(str(existing.bend_dir)+"?"+str(col))
             if existing.bend_dir == col:
                 # bring up height and delete menu
-                print("edit")
+                #print("edit")
                 #short_rows = ShortRows(x, y, 10 * w.get() // 4, 10 * w.get() // 2)
                 #print(short_rows)
                 ring = C.create_oval(x - r, y - r, x + r, y + r, outline="pink", width="3")
@@ -323,22 +331,22 @@ def set_height(e):
     #y1 = 10 + 10 * float(e)
     #C.coords(rect, x0, y0, x1, y1)
     #print(str(e))
-    highest = rects[max(rects)]
-    x0, y0, x1, y1 = C.coords(highest)
-    yval = int(y1//10-1)
-    print("yval: "+ str(yval))
+    max_key = len(rects)-1
+    x0, y0, x1, y1 = C.coords(rects[max_key])
+    #yval = int(round(y1/10)-1)
+    #print("yval: "+ str(yval))
     max_height = int(e)
-    if float(e) > yval:
+    if float(e) > max_key+1:  # expand
         #for i in range(yval, max_height):
-        for i in range(0, max_height-yval):
-            row = yval+i
+        for i in range(0, max_height-max_key-1):
+            row = max_key+i+1
             tag = "r"+str(row)
             #print(tag)
             new_rect = C.create_rectangle(x0, y1+10*i, x1, y1+10+10*i, fill="yellow", tags=tag)
             rects[row] = new_rect
-    elif float(e) < yval:
+    elif float(e) < max_key+1:  # shrink
         print("deleting")
-        for i in range(max_height, yval):
+        for i in range(max_height, max_key):
             print("i: "+str(i))
             C.delete(rects[i])
             del(rects[i])
