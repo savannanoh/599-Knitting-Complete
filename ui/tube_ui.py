@@ -64,7 +64,7 @@ class ShortRows:
     A Simple class structure for representing short rows
     """
 
-    def __init__(self, x: int, y: int, height: float, width: int):
+    def __init__(self, x: int, y: int, col: int, row: int, height: float, width: int):
         """
         :param x: upper left point of short rows
         :param y: upper left point of short rows
@@ -75,10 +75,14 @@ class ShortRows:
         print("height", str(height))
         self.x: int = x
         self.y: int = y-height/2
+        self.col = col
+        self.row = row
         self.height: float = height
         self.width: int = width
         assert self.x is not None
         assert self.y is not None
+        assert self.col is not None
+        assert self.row is not None
         assert self.height is not None
         assert self.width is not None
         assert height >= 0
@@ -87,20 +91,21 @@ class ShortRows:
         self.draw()
 
     def __str__(self):
-        return f"bend ({self.x}, {self.y}) {self.height} + {self.width}"
+        return f"bend ({self.col}, {self.row}) {self.height} + {self.width}"
 
     def __repr__(self):
         return str(self)
 
     def draw(self):
-        col = self.x//10-1
-        row = int(self.y + self.height/2)//10-1
+        #col = self.x//10-1
+        #row = int(self.y + self.height/2)//10-1
         # draw two pairs of arcs
+        tag = str(self.col)+","+str(self.row)
         shrinks = self.x, self.y, self.x+self.width, self.height+self.y
         grows = self.x, self.height+self.y, self.x+self.width, self.height*2+self.y
-        C.create_arc(shrinks, start=180, extent=180, outline="orange", width=2, tags=(str(col)+","+str(row)))
-        C.create_arc(grows, start=0, extent=180, outline="orange", width=2, tags=(str(col)+","+str(row)))
-        print(row, col)
+        self.top = C.create_arc(shrinks, start=180, extent=180, outline="orange", width=2, tags=tag)
+        self.bot = C.create_arc(grows, start=0, extent=180, outline="orange", width=2, tags=tag)
+        print(self.col, self.row)
         # todo draw 2nd pair
 
 # todo
@@ -111,18 +116,11 @@ class ShortRows:
     def adjust_width(self):
         # shrink the arcs
         # shift the arcs
-
-    def shift_up():
+        
+def shift_up():
+    Bfkjnewiv
     
-    def shift_down(y):
-    to_shift = C.find_enclosed(0, y, C_WIDTH, y+C_HEIGHT)
-    for shape in to_shift:
-        x0, y0, x1, y1 = C.coords(rect)
-    x1 = 10 + 10 * float(e)
-    C.coords(rect, x0, y0, x1, y1)
 """
-# todo: create actual gap in fabric
-
 
 def shift_down(y, shift):
     print("shift")
@@ -134,6 +132,8 @@ def shift_down(y, shift):
     for shape in to_shift:
         x0, y0, x1, y1 = C.coords(shape)
         C.coords(shape, x0, y0 + shift, x1, y1 + shift)
+
+
 
 
 
@@ -182,6 +182,7 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
 
     def cancel():
         if is_new is True:
+            shift_up()
             C.delete(str(col)+","+str(row))
         close()
 
@@ -191,6 +192,7 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
     def remove():
         if is_new is False:
             # print("erase circle")
+            shift_up()
             C.delete(str(col)+","+str(row))
             del bends[(col, row)]  # remove bend from array
             close()
@@ -264,8 +266,8 @@ def place_bend(e):
         elif y1 >= y >= 10 and (w.get() * 10 + 10) >= x >= 10:
             circ = C.create_oval(x - r, y - r, x + r, y + r, fill="green", tags=(str(col)+","+str(row)))
             ring = C.create_oval(x - r, y - r, x + r, y + r, outline="pink", width="3")
-            short_rows = ShortRows(x, y, 10 * w.get() // 4, 10 * w.get() // 2)
-            # diamond = C.create_polygon(, fill="gray") todo
+            short_rows = ShortRows(x, y, col, row, 10 * w.get() // 4, 10 * w.get() // 2)
+            # diamond = C.create_polygon(, fill="gray")
             # print(x//10-1)
             # print(y//10-1)
             # bends.append(Draft_Bend(y//10-1, 1, x//10-1))
@@ -315,7 +317,7 @@ def set_height(e):
             #print(tag)
             new_rect = C.create_rectangle(x0, y1+10*i, x1, y1+10+10*i, fill="yellow", tag=tag)
             rects[row] = new_rect
-    elif float(e) < yval:
+    elif float(e) < yval+1:
         print("deleting")
         for i in range(max_height, yval):
             print("i: "+str(i))
