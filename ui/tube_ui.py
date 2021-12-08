@@ -108,6 +108,25 @@ class ShortRows:
         print(self.col, self.row)
         # todo draw 2nd pair
 
+    def on_adjust_width(self):
+        # adjust size of arcs
+        old_w = self.width
+        new_w = w.get()*10
+        multiplier = new_w/old_w
+        old_h = self.height
+        new_h = (old_h * multiplier)
+        self.width = new_w
+        self.height = new_h//10*10
+        # shift
+        shift_down(self.y, self.height-old_h)
+
+        C.coords(self.top, self.x, self.y, self.x+self.width, self.height+self.y)
+        C.coords(self.bot, self.x, self.height+self.y, self.x+self.width, self.height*2+self.y)
+        #print(C.coords(self.top))
+        #print(C.coords(self.bot))
+
+
+
 # todo
 """
      def adjust_bend(self):
@@ -115,11 +134,7 @@ class ShortRows:
 
     def adjust_width(self):
         # shrink the arcs
-        # shift the arcs
-        
-def shift_up():
-    Bfkjnewiv
-    
+        # shift the arcs    
 """
 
 def shift_down(y, shift):
@@ -127,7 +142,6 @@ def shift_down(y, shift):
         return
     print("shift")
     print(shift)
-    #y-=1
     print("y")
     print(y)
     if shift > 0:
@@ -137,9 +151,6 @@ def shift_down(y, shift):
     for shape in to_shift:
         x0, y0, x1, y1 = C.coords(shape)
         C.coords(shape, x0, y0 + shift, x1, y1 + shift)
-
-
-
 
 
 def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
@@ -185,8 +196,10 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
 
     def cancel():
         if is_new is True:
-            shift_down(y, -(10 * w.get() // 4)//10*10)
+            #shift_down(y, -(10 * w.get() // 2)//10*10)
+            shift_down(y, -srs[row].height//10*10)
             C.delete(str(col)+","+str(row))
+            del(srs[row])
         close()
 
     cancel_button = Button(menu, text="Cancel", command=cancel)
@@ -195,8 +208,10 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
     def remove():
         if is_new is False:
             # print("erase circle")
-            shift_down(y, -(10 * w.get() // 4)//10*10)
+            #shift_down(y, -(10 * w.get() // 2)//10*10)
+            shift_down(y, -srs[row].height//10*10)
             C.delete(str(col)+","+str(row))
+            del(srs[row])
             del bends[(col, row)]  # remove bend from array
             close()
 
@@ -240,7 +255,7 @@ def place_bend(e):
         rect = rects[i]
         x0, y0, x1, y1 = C.coords(rect)
         print(i, y0, y1)
-        if y == y1:
+        if y == y1 and i < len(rects)-1:
             row = i+1
     print("y", str(y))
     print("row", str(row))
@@ -269,7 +284,7 @@ def place_bend(e):
         elif y1 >= y >= 10 and (w.get() * 10 + 10) >= x >= 10:
             circ = C.create_oval(x - r, y - r, x + r, y + r, fill="green", tags=(str(col)+","+str(row)))
             ring = C.create_oval(x - r, y - r, x + r, y + r, outline="pink", width="3")
-            short_rows = ShortRows(x, y, col, row, 10 * w.get() // 4, 10 * w.get() // 2)
+            srs[row] = ShortRows(x, y, col, row, 10 * w.get() // 2, 10 * w.get() // 2)
             # diamond = C.create_polygon(, fill="gray")
             # print(x//10-1)
             # print(y//10-1)
@@ -298,7 +313,8 @@ def set_width(e):
         C.coords(rect, x0, y0, x1, y1)
     C.tag_raise("gridline")
 
-
+    for sr in srs:
+       srs[sr].on_adjust_width()
 
 def set_height(e):
     height = h.get()
@@ -310,7 +326,7 @@ def set_height(e):
     highest = rects[max(rects)]
     x0, y0, x1, y1 = C.coords(highest)
     yval = int(y1//10-1)
-    #print("yval: "+ str(yval))
+    print("yval: "+ str(yval))
     max_height = int(e)
     if float(e) > yval:
         #for i in range(yval, max_height):
@@ -318,9 +334,9 @@ def set_height(e):
             row = yval+i
             tag = "r"+str(row)
             #print(tag)
-            new_rect = C.create_rectangle(x0, y1+10*i, x1, y1+10+10*i, fill="yellow", tag=tag)
+            new_rect = C.create_rectangle(x0, y1+10*i, x1, y1+10+10*i, fill="yellow", tags=tag)
             rects[row] = new_rect
-    elif float(e) < yval+1:
+    elif float(e) < yval:
         print("deleting")
         for i in range(max_height, yval):
             print("i: "+str(i))
@@ -440,15 +456,16 @@ if __name__ == "__main__":
 
     C = tk.Canvas(tube, bg="blue", height=C_HEIGHT, width=C_WIDTH)
     rects = {}
+    srs = {}
     coord = 10, 50, 240, 210
-    rect0 = C.create_rectangle(10, 10, 90, 20, fill="yellow", tag="r0")
-    rect1 = C.create_rectangle(10, 20, 90, 30, fill="yellow", tag="r1")
+    rect0 = C.create_rectangle(10, 10, 90, 20, fill="yellow", tags="r0")
+    rect1 = C.create_rectangle(10, 20, 90, 30, fill="yellow", tags="r1")
     rects[0] = rect0
     rects[1] = rect1
     for n in range(0, C_COLS+1):
-        C.create_line(10+n*10, 10, 10+n*10, 10*(C_COLS+1), fill="gray", tag="gridline")
+        C.create_line(10+n*10, 10, 10+n*10, 10*(C_COLS+1), fill="gray", tags="gridline")
     for m in range(0, C_ROWS+1):
-        C.create_line(10, 10+m*10, 10*(C_ROWS+1), 10+m*10, fill="gray", tag="gridline")
+        C.create_line(10, 10+m*10, 10*(C_ROWS+1), 10+m*10, fill="gray", tags="gridline")
 
     C.pack()
 
