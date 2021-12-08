@@ -76,12 +76,14 @@ class ShortRows:
         #print("height", str(height))
         self.x: int = x
         self.y: int = y-height/2
+        self.dot_y = y
         self.col = col
         self.row = row
         self.height: float = height
         self.width: int = width
         assert self.x is not None
         assert self.y is not None
+        assert self.dot_y is not None
         assert self.col is not None
         assert self.row is not None
         assert self.height is not None
@@ -110,6 +112,11 @@ class ShortRows:
         # todo draw 2nd pair
 
     def on_adjust_width(self):
+        #self.y and self.dot_y might have been changed by the canvas during shifting
+        x0, y0, x1, y1 = C.coords(self.top)
+        self.y = y0
+        self.dot_y = self.y + self.height//2
+
         # adjust size of arcs
         old_w = self.width
         new_w = w.get()//2*10
