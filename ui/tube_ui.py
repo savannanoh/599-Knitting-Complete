@@ -109,13 +109,12 @@ class ShortRows:
         self.top = C.create_arc(shrinks, start=180, extent=180, outline="orange", width=2, tags=tag)
         self.bot = C.create_arc(grows, start=0, extent=180, outline="orange", width=2, tags=tag)
         #print(self.col, self.row)
-        # todo draw 2nd pair
-        if self.col > w.get()/2:
-            opposite = w.get()*10
-            shrinks2 = self.x-opposite, self.y, self.x + self.width - opposite, self.height + self.y
-            grows2 = self.x - opposite, self.height + self.y, self.x + self.width - opposite, self.height * 2 + self.y
-            self.top2 = C.create_arc(shrinks2, start=180, extent=180, outline="orange", width=2, tags=tag)
-            self.bot2 = C.create_arc(grows2, start=0, extent=180, outline="orange", width=2, tags=tag)
+        # draw 2nd pair
+        opposite = w.get()*10
+        shrinks2 = self.x-opposite, self.y, self.x + self.width - opposite, self.height + self.y
+        grows2 = self.x - opposite, self.height + self.y, self.x + self.width - opposite, self.height * 2 + self.y
+        self.top2 = C.create_arc(shrinks2, start=180, extent=180, outline="orange", width=2, tags=tag)
+        self.bot2 = C.create_arc(grows2, start=0, extent=180, outline="orange", width=2, tags=tag)
 
     def on_adjust_width(self):
         #self.y and self.dot_y might have been changed by the canvas during shifting
@@ -140,6 +139,10 @@ class ShortRows:
 
         C.coords(self.top, self.x, self.y, self.x+self.width, self.height+self.y)
         C.coords(self.bot, self.x, self.height+self.y, self.x+self.width, self.height*2+self.y)
+
+        opposite = w.get()*10
+        C.coords(self.top2, self.x - opposite, self.y, self.x + self.width - opposite, self.height + self.y)
+        C.coords(self.bot2, self.x - opposite, self.height + self.y, self.x + self.width - opposite, self.height * 2 + self.y)
         #print(C.coords(self.top))
         #print(C.coords(self.bot))
 
@@ -160,6 +163,9 @@ class ShortRows:
 
         C.coords(self.top, self.x, self.y, self.x+self.width, self.height+self.y)
         C.coords(self.bot, self.x, self.height+self.y, self.x+self.width, self.height*2+self.y)
+        opposite = w.get()*10
+        C.coords(self.top2, self.x - opposite, self.y, self.x+self.width - opposite, self.height+self.y)
+        C.coords(self.bot2, self.x - opposite, self.height+self.y, self.x+self.width - opposite, self.height*2+self.y)
 
 def shift_down(y, shift):
     assert shift % 10 == 0
