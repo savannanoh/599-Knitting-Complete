@@ -125,29 +125,42 @@ class ShortRows:
         new_h = (old_h * multiplier)
         self.width = new_w
         #self.height = new_h//10*10
-        self.height = round(new_h)
+        self.height = round(new_h/10)*10
         assert self.height % 10 == 0
         dot_y = self.y + old_h//2
         self.y = dot_y - self.height//2
         # shift
         shift_down(dot_y, self.height-old_h)
 
-        # why is self.y changing???
         C.coords(self.top, self.x, self.y, self.x+self.width, self.height+self.y)
         C.coords(self.bot, self.x, self.height+self.y, self.x+self.width, self.height*2+self.y)
         #print(C.coords(self.top))
         #print(C.coords(self.bot))
 
+    def on_adjust_bend(self, b: float):
+        #self.y and self.dot_y might have been changed by the canvas during shifting
+        x0, y0, x1, y1 = C.coords(self.top)
+        self.y = y0
+        self.dot_y = self.y + self.height//2
+
+        # adjust height of arcs
+        old_h = self.height
+        new_h = b * self.width  # since height = width at bendiness of 1.0
+        self.height = round(new_h/10)*10
+        dot_y = self.y + old_h//2
+        self.y = dot_y - self.height//2
+        # shift
+        shift_down(dot_y, self.height-old_h)
+
+        C.coords(self.top, self.x, self.y, self.x+self.width, self.height+self.y)
+        C.coords(self.bot, self.x, self.height+self.y, self.x+self.width, self.height*2+self.y)
 
 
 # todo
 """
      def adjust_bend(self):
         # squish the arcs
-
-    def adjust_width(self):
-        # shrink the arcs
-        # shift the arcs    
+   
 """
 
 def shift_down(y, shift):
@@ -178,6 +191,8 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
     def set_bendiness(e):
         print(bendiness.get())
         # todo: adjust arcs
+        srs[row].on_adjust_bend(bendiness.get())
+
 
     bendiness = DoubleVar()
     scale = Scale(menu, variable=bendiness, from_=0, to=1, resolution=0.01, length=150, orient=HORIZONTAL, label="Bendiness", command=set_bendiness)
@@ -320,7 +335,6 @@ def set_width(e):
     for m in range(0, (y1-10)//10):
         C.create_line(10, 10+m*10, 10+10*w.get(), 10+m*10)
     """
-    # todo adjust arcs
 
     for rect in rects.values():
         x0, y0, x1, y1 = C.coords(rect)
