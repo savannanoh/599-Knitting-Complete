@@ -123,17 +123,20 @@ def shift_up():
 """
 
 def shift_down(y, shift):
+    if shift == 0:
+        return
     print("shift")
     print(shift)
     #y-=1
     print("y")
     print(y)
-    to_shift = C.find_enclosed(0, y-1, C_WIDTH, y + C_HEIGHT)
+    if shift > 0:
+        to_shift = C.find_enclosed(0, y-1, C_WIDTH, y + C_HEIGHT)
+    elif shift < 0:
+        to_shift = C.find_enclosed(0, y+1, C_WIDTH, y + C_HEIGHT)
     for shape in to_shift:
         x0, y0, x1, y1 = C.coords(shape)
         C.coords(shape, x0, y0 + shift, x1, y1 + shift)
-
-
 
 
 
@@ -182,7 +185,7 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
 
     def cancel():
         if is_new is True:
-            shift_up()
+            shift_down(y, -(10 * w.get() // 4)//10*10)
             C.delete(str(col)+","+str(row))
         close()
 
@@ -192,7 +195,7 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
     def remove():
         if is_new is False:
             # print("erase circle")
-            shift_up()
+            shift_down(y, -(10 * w.get() // 4)//10*10)
             C.delete(str(col)+","+str(row))
             del bends[(col, row)]  # remove bend from array
             close()
