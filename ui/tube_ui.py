@@ -166,11 +166,11 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
     def place():
         if is_new is True:
             #shift_down(y, 10 * w.get() // 2 // 2)
-            bends[(col, row)] = Draft_Bend(y//10-1, bendiness.get(), x//10-1)
+            bends[(col, row)] = Draft_Bend(row, bendiness.get(), col)
             print(bends)
 
         else:
-            bends[(col, row)] = Draft_Bend(y//10-1, bendiness.get(), x//10-1)
+            bends[(col, row)] = Draft_Bend(row, bendiness.get(), col)
             print(bends)
         close()
 
@@ -250,8 +250,8 @@ def place_bend(e):
             if existing.bend_dir == col:
                 # bring up height and delete menu
                 print("edit")
-                short_rows = ShortRows(x, y, 10 * w.get() // 4, 10 * w.get() // 2)
-                print(short_rows)
+                #short_rows = ShortRows(x, y, 10 * w.get() // 4, 10 * w.get() // 2)
+                #print(short_rows)
                 ring = C.create_oval(x - r, y - r, x + r, y + r, outline="pink", width="3")
                 open_menu(col, row, x, y, False, ring)
             """
