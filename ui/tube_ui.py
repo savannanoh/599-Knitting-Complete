@@ -110,6 +110,12 @@ class ShortRows:
         self.bot = C.create_arc(grows, start=0, extent=180, outline="orange", width=2, tags=tag)
         #print(self.col, self.row)
         # todo draw 2nd pair
+        if self.col > w.get()/2:
+            opposite = w.get()*10
+            shrinks2 = self.x-opposite, self.y, self.x + self.width - opposite, self.height + self.y
+            grows2 = self.x - opposite, self.height + self.y, self.x + self.width - opposite, self.height * 2 + self.y
+            self.top2 = C.create_arc(shrinks2, start=180, extent=180, outline="orange", width=2, tags=tag)
+            self.bot2 = C.create_arc(grows2, start=0, extent=180, outline="orange", width=2, tags=tag)
 
     def on_adjust_width(self):
         #self.y and self.dot_y might have been changed by the canvas during shifting
@@ -155,14 +161,6 @@ class ShortRows:
         C.coords(self.top, self.x, self.y, self.x+self.width, self.height+self.y)
         C.coords(self.bot, self.x, self.height+self.y, self.x+self.width, self.height*2+self.y)
 
-
-# todo
-"""
-     def adjust_bend(self):
-        # squish the arcs
-   
-"""
-
 def shift_down(y, shift):
     assert shift % 10 == 0
     assert y % 10 == 0
@@ -190,7 +188,7 @@ def open_menu(col: int, row: int, x: int, y: int, is_new: bool, ring):
 
     def set_bendiness(e):
         print(bendiness.get())
-        # todo: adjust arcs
+        # adjust arcs
         srs[row].on_adjust_bend(bendiness.get())
 
 
@@ -367,7 +365,7 @@ def set_height(e):
             rects[row] = new_rect
     elif float(e) < max_key+1:  # shrink
         print("deleting")
-        for i in range(max_height, max_key):
+        for i in range(max_height, max_key+1):
             print("i: "+str(i))
             C.delete(rects[i])
             del(rects[i])
