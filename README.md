@@ -69,3 +69,7 @@ There is currently no way to move a bend, so if you want to move one you have to
 When you're done placing the bends you want, you can enter a file name and then click "KNIT".
 
 The KnitOut files from running this file will show up in the "ui" folder.
+
+## Bugs
+
+I have not had a chance to exhaustively test and document all bugs, but I am aware that at least a few exist.
