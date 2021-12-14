@@ -354,8 +354,7 @@ def adjust_params():
 
 
 def export_tube():
-    test_multi_bend(w.get()//2, h.get(), [], E1.get(), 3)
-    print("No bends")
+    test_multi_bend(w.get()//2, h.get(), [], E1.get(), 3)  # no bends
 
 
 def export_knitout(w: int, end_len: int, b: List[Bend], fn):
